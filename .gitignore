@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+
+# Local data
+data/raw/
+data/interim/
+data/processed/*.parquet
+data/processed/*.pkl
+
+# Large/generated exports that can be rebuilt
+reports/figures/*.svg
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
