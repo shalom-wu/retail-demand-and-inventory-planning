@@ -1,0 +1,12 @@
+{
+  "rows": 913000,
+  "columns": 4,
+  "start_date": "2013-01-01",
+  "end_date": "2017-12-31",
+  "stores": 10,
+  "items": 50,
+  "duplicate_grain_rows": 0,
+  "missing_values": 0,
+  "negative_sales_rows": 0,
+  "complete_daily_grid": true
+}
