@@ -182,7 +182,7 @@ def plot_forecast_comparison(validation: pd.DataFrame, output_path: Path) -> Non
         .melt("date", var_name="series", value_name="units")
     )
     palette = {
-        "actual": COLORS["ink"],
+        "actual": TOKENS["ink"],
         "seasonal_naive": COLORS["neutral"],
         "gradient_boosting": COLORS["blue"],
     }
@@ -265,4 +265,3 @@ def plot_cost_comparison(costs: pd.DataFrame, output_path: Path) -> None:
         "Validation-period policy simulation using lost-margin stockout cost and carrying cost.",
     )
     save_figure(fig, output_path)
-

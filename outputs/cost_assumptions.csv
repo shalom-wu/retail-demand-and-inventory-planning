@@ -1,0 +1,10 @@
+assumption,value,unit,note
+Unit selling price,8.0,USD/unit,Planning placeholder because the Kaggle data has sales units only.
+Gross margin rate,0.35,share,Planning placeholder for general retail gross margin.
+Unit cost,5.2,USD/unit,Derived from unit price and gross margin.
+Annual holding cost rate,0.25,share,25% sits inside the commonly cited 20%-30% annual carrying-cost range.
+Daily holding cost,0.0035616438356164386,USD/unit/day,Derived carrying cost per unit-day.
+Stockout cost,2.8,USD/lost unit,Lost gross margin on unmet demand.
+Reorder cost,35.0,USD/order,Fixed ordering/admin cost placeholder; supplier and freight data are unavailable.
+Lead time,7.0,days,One-week replenishment cycle assumption for a multi-store retailer.
+Cycle service level,0.95,share,95% cycle service level for the base reorder-point scenario.

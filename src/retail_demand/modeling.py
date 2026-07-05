@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+os.environ.setdefault("LOKY_MAX_CPU_COUNT", "1")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 
@@ -195,4 +200,3 @@ def save_model_metadata(path: Path, run_config: ModelRunConfig, metrics: pd.Data
         "metrics": metrics.to_dict(orient="records"),
     }
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-

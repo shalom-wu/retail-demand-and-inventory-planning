@@ -1,0 +1,53 @@
+{
+  "run_config": {
+    "validation_start": "2017-10-01",
+    "model_name": "hist_gradient_boosting",
+    "max_iter": 220,
+    "learning_rate": 0.06,
+    "l2_regularization": 0.1,
+    "random_seed": 42
+  },
+  "feature_columns": [
+    "store",
+    "item",
+    "dayofweek",
+    "weekofyear",
+    "month",
+    "quarter",
+    "year",
+    "dayofyear",
+    "is_weekend",
+    "lag_1",
+    "lag_7",
+    "lag_14",
+    "lag_28",
+    "lag_365",
+    "rolling_mean_7",
+    "rolling_std_7",
+    "rolling_mean_28",
+    "rolling_std_28"
+  ],
+  "metrics": [
+    {
+      "model": "gradient_boosting",
+      "rmse": 7.773150115206976,
+      "mape": 13.193578722119458,
+      "wmape": 10.97996978775229,
+      "bias_units": 0.06945770177013691
+    },
+    {
+      "model": "moving_average_28",
+      "rmse": 12.55869777292028,
+      "mape": 21.065043429828123,
+      "wmape": 17.44803767361315,
+      "bias_units": 2.696085403726708
+    },
+    {
+      "model": "seasonal_naive",
+      "rmse": 14.492021043078964,
+      "mape": 22.8159398677369,
+      "wmape": 19.91370751922238,
+      "bias_units": -2.1015434782608695
+    }
+  ]
+}

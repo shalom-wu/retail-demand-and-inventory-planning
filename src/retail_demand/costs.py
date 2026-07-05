@@ -178,7 +178,7 @@ def cost_summary(
             overstock_units=("overstock_units", "sum"),
             stockout_cost=("stockout_cost", "sum"),
             holding_cost=("holding_cost", "sum"),
-            excess_inventory_value=("excess_inventory_value", "mean"),
+            avg_excess_inventory_value=("excess_inventory_value", "mean"),
             reorder_cost=("reorder_cost", "sum"),
             total_operating_cost=("total_operating_cost", "sum"),
         )
@@ -204,4 +204,3 @@ def assumptions_table(assumptions: CostAssumptions | None = None) -> pd.DataFram
         ("Cycle service level", assumptions.service_level, "share", config.ASSUMPTION_NOTES["service_level"]),
     ]
     return pd.DataFrame(rows, columns=["assumption", "value", "unit", "note"])
-
