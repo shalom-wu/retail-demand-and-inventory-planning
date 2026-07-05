@@ -36,6 +36,8 @@ def main() -> None:
             "import pandas as pd\n"
             "from IPython.display import Markdown, display\n\n"
             "ROOT = Path.cwd()\n"
+            "if not (ROOT / 'outputs').exists() and (ROOT.parent / 'outputs').exists():\n"
+            "    ROOT = ROOT.parent\n"
             "OUTPUTS = ROOT / 'outputs'\n"
             "FIGURES = ROOT / 'reports' / 'figures'\n"
             "pd.set_option('display.max_columns', 30)"

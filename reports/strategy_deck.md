@@ -1,42 +1,3 @@
-"""Build the markdown strategy deck from generated analysis outputs."""
-
-from __future__ import annotations
-
-import json
-import sys
-from pathlib import Path
-
-import pandas as pd
-
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-
-from retail_demand import config
-from retail_demand.reporting import money, pct, units, write_markdown
-
-
-def main() -> None:
-    profile = json.loads((config.OUTPUTS / "data_profile.json").read_text(encoding="utf-8"))
-    metrics = pd.read_csv(config.OUTPUTS / "model_metrics.csv")
-    costs = pd.read_csv(config.OUTPUTS / "inventory_cost_summary.csv")
-    store_summary = pd.read_csv(config.OUTPUTS / "store_summary.csv")
-    item_summary = pd.read_csv(config.OUTPUTS / "item_summary.csv")
-    sku = pd.read_csv(config.OUTPUTS / "sku_difficulty.csv")
-    policy = pd.read_csv(config.OUTPUTS / "inventory_policy.csv")
-
-    baseline = metrics.loc[metrics["model"] == "seasonal_naive"].iloc[0]
-    model = metrics.loc[metrics["model"] == "gradient_boosting"].iloc[0]
-    baseline_cost = costs.loc[costs["model"] == "seasonal_naive"].iloc[0]
-    model_cost = costs.loc[costs["model"] == "gradient_boosting"].iloc[0]
-    savings = baseline_cost["total_operating_cost"] - model_cost["total_operating_cost"]
-    savings_rate = savings / baseline_cost["total_operating_cost"] * 100
-    top_store = store_summary.iloc[0]
-    top_item = item_summary.iloc[0]
-    hardest = sku.iloc[0]
-    avg_safety_stock = policy["safety_stock_units"].mean()
-    avg_rop = policy["reorder_point_units"].mean()
-
-    deck = f"""
 # Retail Demand Forecasting & Inventory Optimization
 
 ## 1. Problem Framing
@@ -44,8 +5,8 @@ def main() -> None:
 **Manual or naive replenishment leaves money on both sides of the shelf.**
 
 This project uses the Kaggle Store Item Demand Forecasting Challenge dataset:
-{profile["rows"]:,} daily observations across {profile["stores"]} stores,
-{profile["items"]} items, and five years. The business question is practical:
+913,000 daily observations across 10 stores,
+50 items, and five years. The business question is practical:
 how much better does a store-item forecast need to be before it changes reorder
 decisions?
 
@@ -54,10 +15,10 @@ as a proxy for manual seasonal reordering.
 
 Validation-period baseline cost:
 
-- Stockout cost: {money(baseline_cost["stockout_cost"])}
-- Holding cost: {money(baseline_cost["holding_cost"])}
-- Reorder admin cost: {money(baseline_cost["reorder_cost"])}
-- Total operating cost: {money(baseline_cost["total_operating_cost"])}
+- Stockout cost: $10,905
+- Holding cost: $3,997
+- Reorder admin cost: $245,000
+- Total operating cost: $259,902
 
 ![Weekly sales trend](figures/weekly_sales_trend.png)
 
@@ -66,8 +27,8 @@ Validation-period baseline cost:
 **The data is seasonal, but not flat enough for one blanket safety-stock rule.**
 
 The demand curve shows a repeatable yearly pattern, with clear weekday lift and
-meaningful differences by store and item. Store {int(top_store["store"])} has
-the highest total demand in the training set, while item {int(top_item["item"])}
+meaningful differences by store and item. Store 2 has
+the highest total demand in the training set, while item 15
 is the highest-volume item overall.
 
 ![Monthly seasonality](figures/monthly_seasonality.png)
@@ -82,10 +43,10 @@ The validation window is October 1, 2017 through December 31, 2017. The stronger
 model is a gradient boosting regressor using calendar features, store/item ids,
 rolling demand, and lagged sales. The baseline is same-day-last-year demand.
 
-- Seasonal naive WMAPE: {pct(baseline["wmape"])}
-- Gradient boosting WMAPE: {pct(model["wmape"])}
-- WMAPE improvement: {baseline["wmape"] - model["wmape"]:.1f} percentage points
-- Gradient boosting RMSE: {model["rmse"]:.2f} units per store-item day
+- Seasonal naive WMAPE: 19.9%
+- Gradient boosting WMAPE: 11.0%
+- WMAPE improvement: 8.9 percentage points
+- Gradient boosting RMSE: 7.77 units per store-item day
 
 ![Forecast comparison](figures/forecast_comparison.png)
 
@@ -94,7 +55,7 @@ rolling demand, and lagged sales. The baseline is same-day-last-year demand.
 **Forecast error becomes expensive when it is converted into stockout exposure.**
 
 Using the same reorder logic, the modeled policy reduces validation-period
-operating cost by **{money(savings)}**, or **{savings_rate:.1f}%**, versus the
+operating cost by **$7,486**, or **2.9%**, versus the
 seasonal naive policy. The largest dollars sit in lost gross margin from unmet
 demand, not in the short-run carrying cost.
 
@@ -127,14 +88,14 @@ demand, not in the short-run carrying cost.
 
 The first rollout should focus on the series with both high demand volatility
 and high forecast error. The hardest validation series is store
-{int(hardest["store"])}, item {int(hardest["item"])}, with CV
-{hardest["cv"]:.2f} and MAPE {hardest["mape"]:.1f}%.
+7, item 5, with CV
+0.35 and MAPE 30.6%.
 
 Expected base-case impact under the model assumptions:
 
-- Average recommended safety stock: {avg_safety_stock:.1f} units per store-item
-- Average reorder point: {avg_rop:.1f} units per store-item
-- Validation-period modeled savings: {money(savings)}
+- Average recommended safety stock: 32.8 units per store-item
+- Average reorder point: 416.1 units per store-item
+- Validation-period modeled savings: $7,486
 - Main ROI lever: fewer lost-margin stockouts without blindly raising inventory everywhere
 
 ## 7. Appendix: Methodology And Caveats
@@ -167,10 +128,3 @@ Expected base-case impact under the model assumptions:
 - Target service level by SKU tier.
 - Whether the business wants to value stockouts as lost margin, lost revenue,
   customer churn risk, or a blended penalty.
-"""
-    write_markdown(config.REPORTS / "strategy_deck.md", deck)
-    print("Deck complete.")
-
-
-if __name__ == "__main__":
-    main()

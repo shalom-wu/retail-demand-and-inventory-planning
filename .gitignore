@@ -13,6 +13,7 @@ htmlcov/
 venv/
 env/
 .env
+.jupyter_runtime/
 
 # Local data
 data/raw/
@@ -28,4 +29,3 @@ reports/figures/*.svg
 Thumbs.db
 .vscode/
 .idea/
-
