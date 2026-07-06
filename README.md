@@ -1,104 +1,90 @@
-# Retail Demand Forecasting & Inventory Optimization
+# Retail Demand And Inventory Planning
 
-Author: Shalom Wu (`shalomwu`)  
-License: MIT
+This repository uses Kaggle's Store Item Demand Forecasting Challenge dataset to model daily demand across stores and items, then converts forecast error into safety-stock and reorder-point recommendations.
 
-This project uses Kaggle's [Store Item Demand Forecasting Challenge](https://www.kaggle.com/competitions/demand-forecasting-kernels-only), a public competition dataset with five years of daily unit sales across 10 stores and 50 items. The analysis frames the data as a multi-store retailer deciding whether better demand forecasts can reduce stockouts without adding unnecessary inventory. The workflow starts with a same-day-last-year baseline, builds a gradient boosting model, and converts forecast uncertainty into SKU-level safety stock and reorder-point recommendations.
+## Project Summary
 
-## Key findings
+| Area | Details |
+|---|---|
+| Business question | Can better demand forecasts reduce stockout cost without adding unnecessary inventory? |
+| Data | Five years of daily sales for 10 stores and 50 items from Kaggle's Store Item Demand Forecasting Challenge. |
+| Methods | Data quality checks, seasonality analysis, baseline forecasting, gradient boosting, residual-based safety stock, reorder simulation. |
+| Main outputs | Forecast report, inventory cost model, strategy deck, figures, Power BI-ready exports. |
+| Tools | Python, pytest, DuckDB SQL, Power BI build documentation. |
 
-- The raw training file is clean at the expected grain: **913,000 rows**, no missing values, no duplicate date-store-item rows, and complete daily coverage from **2013-01-01 to 2017-12-31**.
-- Demand is strongly seasonal. July is the highest-demand month at about **67.0 units per store-item day**, and weekend demand is about **23% higher** than weekday demand.
-- The best model is gradient boosting with calendar and lag features. On the October-December 2017 holdout window, it reaches **11.0% WMAPE** and **7.77 RMSE**, versus **19.9% WMAPE** and **14.49 RMSE** for the seasonal naive baseline.
-- Translating forecast error into inventory decisions, the modeled policy reduces validation-period operating cost by about **$7.5k** versus seasonal naive under the stated planning assumptions.
-- The recommendation is not "hold more inventory everywhere." It is **dynamic safety stock for high-volatility store-item pairs**, while stable SKUs can run leaner.
+## Key Findings
+
+| # | Finding | Evidence |
+|---|---|---|
+| 1 | The raw file is clean at the expected grain. | 913,000 rows, no missing values, no duplicate date-store-item rows, and complete daily coverage from 2013-01-01 to 2017-12-31. |
+| 2 | Demand is strongly seasonal. | July is the highest-demand month, and weekend demand is about 23% higher than weekday demand. |
+| 3 | Gradient boosting materially beats the seasonal naive baseline. | Holdout WMAPE improves to 11.0% versus 19.9% for seasonal naive. |
+| 4 | The model improves the inventory policy under stated assumptions. | Validation-period operating cost falls by about $7.5K versus the seasonal naive policy. |
+| 5 | The recommendation is selective inventory control. | High-volatility store-item pairs need dynamic safety stock; stable SKUs can run leaner. |
+
+![Forecast comparison](reports/figures/forecast_comparison.png)
+
+## Data
+
+The project uses Kaggle's [Store Item Demand Forecasting Challenge](https://www.kaggle.com/competitions/demand-forecasting-kernels-only), a public competition dataset with daily unit sales across 10 stores and 50 items.
+
+The raw files are included in `data/raw/`. Source notes, fallback download instructions, and caveats are documented in [data-sources.md](data-sources.md).
 
 ## Methodology
 
-1. Cleaned and profiled the Kaggle sales file at date-store-item grain.
-2. Explored seasonality by year, month, weekday, store, item, and store-item variance.
-3. Used `statsmodels` seasonal decomposition to separate aggregate trend, annual seasonality, and residual movement.
-4. Compared seasonal naive, 28-day moving average, and gradient boosting models using MAPE, WMAPE, RMSE, and forecast bias.
-5. Converted model residual uncertainty into safety stock using a 95% cycle service level and 7-day lead-time assumption.
-6. Simulated weekly reorder decisions and dollarized stockout, holding, and reorder costs.
+1. Validate the date-store-item grain and profile missingness, duplicates, and coverage.
+2. Analyze demand seasonality by year, month, weekday, store, item, and store-item variance.
+3. Compare seasonal naive, 28-day moving average, and gradient boosting models.
+4. Evaluate forecasts with MAPE, WMAPE, RMSE, and forecast bias.
+5. Convert residual uncertainty into safety stock using a 95% service level and 7-day lead time.
+6. Simulate reorder decisions and dollarize stockout, holding, and reorder costs.
 
-## Inventory Cost Assumptions
+## Repository Contents
 
-The Kaggle data has unit sales only, so the dollar model uses explicit planning assumptions:
-
-- Unit price: `$8.00`
-- Gross margin: `35%`
-- Stockout cost: lost gross margin, or `$2.80` per unmet unit
-- Unit cost: `$5.20`
-- Annual inventory holding cost: `25%`, inside the commonly cited 20%-30% carrying-cost range from [Investopedia](https://www.investopedia.com/terms/c/carryingcostofinventory.asp)
-- Reorder cost: `$35` per store-item weekly order
-- Lead time: `7 days`
-- Service level: `95%`
-
-Retail out-of-stocks matter because they can cause lost sales and customer switching; the README uses the [Stockout](https://en.wikipedia.org/wiki/Stockout) summary and its cited Gruen/Corsten retail out-of-stock research as context, not as a replacement for this project's measured forecast errors.
-
-## Repository Structure
-
-```text
-.
-|-- data-sources.md
-|-- notebooks/
-|-- src/retail_demand/
-|-- scripts/
-|-- outputs/
-|-- reports/
-|   |-- strategy_deck.md
-|   `-- figures/
-|-- tests/
-|-- requirements.txt
-|-- README.md
-`-- LICENSE
-```
+| Path | Purpose |
+|---|---|
+| [notebooks/](notebooks) | Companion analysis notebook. |
+| [src/retail_demand/](src/retail_demand) | Data prep, modeling, inventory, and visualization logic. |
+| [scripts/](scripts) | Download, pipeline, SQL export, and report scripts. |
+| [outputs/](outputs) | Data quality, model, and inventory reports. |
+| [reports/](reports) | Strategy deck and generated figures. |
+| [sql/](sql) | DuckDB validation and KPI exports. |
+| [power-bi/](power-bi) | Dashboard brief, model notes, DAX, refresh steps, and mockups. |
+| [tests/](tests) | Unit tests for data, forecasting, and inventory behavior. |
 
 ## Reproduce
 
-```powershell
+Requires Python 3.11+.
+
+```bash
+git clone https://github.com/shalom-wu/retail-demand-and-inventory-planning.git
+cd retail-demand-and-inventory-planning
 python -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
+
 python scripts/download_data.py
 python scripts/run_all.py
+python scripts/run_sql.py
 pytest
 ```
 
-`scripts/download_data.py` tries the official Kaggle competition first. If the Kaggle account has not accepted the competition rules, it falls back to a Kaggle-hosted mirror with matching file names and file sizes: [akshaymairal/store-item-demand-forecasting-challenge](https://www.kaggle.com/datasets/akshaymairal/store-item-demand-forecasting-challenge).
+The raw files used by the project are already included in `data/raw/`, so a reviewer can run the analysis without a Kaggle download.
 
-The raw files used by the project are already included in `data/raw/`, so a
-reviewer can run the analysis without a Kaggle download.
+## Reporting Layer
 
-## SQL and Power BI layer
+SQL validates the date-store-item grain, date coverage, store and item counts, prediction rows, and inventory-policy outputs. The SQL runner exports Power BI-ready files to `data/powerbi/`.
 
-The [sql/](sql) folder adds DuckDB checks and KPI views over the included sales
-data and Python model outputs. It validates the date-store-item grain, date
-coverage, store/item counts, prediction output rows, and inventory-policy rows.
-
-```powershell
-python scripts/run_sql.py
-```
-
-The SQL runner exports Power BI-ready files to `data/powerbi/`: a 2017 sales
-fact extract, daily sales, store/item summaries, model metrics, SKU difficulty,
-inventory policy, and cost summary. The [power-bi/](power-bi) folder contains
-dashboard specs, DAX, data model notes, refresh steps, manual build
-instructions, and mockups. No `.pbix` is included yet; I did not create a
-placeholder dashboard file.
-
-## Main artifacts
-
-- [Data quality report](outputs/data_quality_report.md)
-- [Modeling and inventory report](outputs/model_report.md)
-- [Strategy deck](reports/strategy_deck.md)
-- [Companion notebook](notebooks/retail_demand_forecasting.ipynb)
+The [power-bi/](power-bi) folder contains dashboard specs, DAX, data model notes, refresh steps, manual build instructions, and mockups. No placeholder `.pbix` file is included.
 
 ## Limitations
 
-- This is a public Kaggle competition dataset, not private retailer data.
-- Sales are observed sales, not true demand. If a store stocked out, unmet demand is invisible.
-- There are no prices, margins, on-hand inventory, promotions, holidays, weather, local events, supplier constraints, pack sizes, or lead-time fields.
-- The validation setup represents a daily reforecast process with recent sales available. A frozen long-horizon production forecast would need recursive simulation.
-- The ROI estimate is directional because the cost model uses assumptions. Before using this deck externally, I would want the real retailer's item prices, gross margins, supplier lead times, order costs, pack sizes, and target service levels.
+- Sales are observed sales, not true demand; unmet demand is invisible when stockouts occurred.
+- The dataset has no prices, margins, on-hand inventory, promotions, holidays, weather, supplier constraints, pack sizes, or lead-time fields.
+- The ROI estimate is directional because the cost model uses planning assumptions.
+- A production forecast would need recursive simulation and real replenishment constraints.
+
+## License And Credit
+
+MIT License. Copyright (c) 2026 Shalom Wu.
+
+Data credit: Kaggle Store Item Demand Forecasting Challenge. See [data-sources.md](data-sources.md) for source notes, fallback download details, and usage caveats.
