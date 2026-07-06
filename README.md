@@ -3,9 +3,9 @@
 Author: Shalom Wu (`shalomwu`)  
 License: MIT
 
-This project uses Kaggle's [Store Item Demand Forecasting Challenge](https://www.kaggle.com/competitions/demand-forecasting-kernels-only), a well-known public competition dataset with five years of daily unit sales across 10 stores and 50 items. I treat the business as **a multi-store retailer** deciding whether better demand forecasting can reduce stockouts without blindly adding excess inventory. The work starts with a same-day-last-year baseline, builds a stronger forecasting model, and turns forecast uncertainty into SKU-level safety stock and reorder-point recommendations.
+This project uses Kaggle's [Store Item Demand Forecasting Challenge](https://www.kaggle.com/competitions/demand-forecasting-kernels-only), a public competition dataset with five years of daily unit sales across 10 stores and 50 items. The analysis frames the data as a multi-store retailer deciding whether better demand forecasts can reduce stockouts without adding unnecessary inventory. The workflow starts with a same-day-last-year baseline, builds a gradient boosting model, and converts forecast uncertainty into SKU-level safety stock and reorder-point recommendations.
 
-## Key Findings
+## Key findings
 
 - The raw training file is clean at the expected grain: **913,000 rows**, no missing values, no duplicate date-store-item rows, and complete daily coverage from **2013-01-01 to 2017-12-31**.
 - Demand is strongly seasonal. July is the highest-demand month at about **67.0 units per store-item day**, and weekend demand is about **23% higher** than weekday demand.
@@ -88,46 +88,12 @@ dashboard specs, DAX, data model notes, refresh steps, manual build
 instructions, and mockups. No `.pbix` is included yet; I did not create a
 placeholder dashboard file.
 
-## Main Artifacts
+## Main artifacts
 
 - [Data quality report](outputs/data_quality_report.md)
 - [Modeling and inventory report](outputs/model_report.md)
 - [Strategy deck](reports/strategy_deck.md)
 - [Companion notebook](notebooks/retail_demand_forecasting.ipynb)
-
-## Portfolio Use
-
-**CV bullets**
-
-- Built a retail demand forecasting and inventory policy project on 913K daily
-  store-item sales rows, comparing baseline and machine-learning forecasts.
-- Converted forecast error into safety stock, reorder-point, and operating-cost
-  recommendations using explicit inventory assumptions.
-- SQL-focused: Added DuckDB validation and KPI views for date-store-item grain,
-  demand aggregation, model metrics, forecast error, and inventory policy.
-- Power BI-focused: Prepared dashboard-ready tables and a three-page inventory
-  planning dashboard build spec.
-
-**LinkedIn description**
-
-> Retail Demand Forecasting & Inventory Optimization - I built this project to
-> connect forecasting accuracy to a business decision: how much safety stock
-> should a retailer carry by store and item?
-
-**Interview explanation**
-
-> "Forecast accuracy only matters if it changes a decision. I used Python for
-> forecasting and scenario logic, SQL for reproducible checks and KPI exports,
-> and Power BI for model performance, SKU difficulty, and reorder priorities."
-
-**Likely interview questions**
-
-1. *Why not optimize only for RMSE?* Inventory decisions care about the cost of
-   being wrong, so I translate errors into stockout and holding-cost tradeoffs.
-2. *What is missing from the data?* Prices, true demand, on-hand inventory,
-   promotions, supplier lead times, and pack sizes.
-3. *How would this work in production?* Add promotion and holiday features,
-   refresh forecasts on a schedule, and compare policies to actual outcomes.
 
 ## Limitations
 
