@@ -50,7 +50,6 @@ Retail out-of-stocks matter because they can cause lost sales and customer switc
 |   |-- strategy_deck.md
 |   `-- figures/
 |-- tests/
-|-- explainer-guide/
 |-- requirements.txt
 |-- README.md
 `-- LICENSE
@@ -69,13 +68,66 @@ pytest
 
 `scripts/download_data.py` tries the official Kaggle competition first. If the Kaggle account has not accepted the competition rules, it falls back to a Kaggle-hosted mirror with matching file names and file sizes: [akshaymairal/store-item-demand-forecasting-challenge](https://www.kaggle.com/datasets/akshaymairal/store-item-demand-forecasting-challenge).
 
+The raw files used by the project are already included in `data/raw/`, so a
+reviewer can run the analysis without a Kaggle download.
+
+## SQL and Power BI layer
+
+The [sql/](sql) folder adds DuckDB checks and KPI views over the included sales
+data and Python model outputs. It validates the date-store-item grain, date
+coverage, store/item counts, prediction output rows, and inventory-policy rows.
+
+```powershell
+python scripts/run_sql.py
+```
+
+The SQL runner exports Power BI-ready files to `data/powerbi/`: a 2017 sales
+fact extract, daily sales, store/item summaries, model metrics, SKU difficulty,
+inventory policy, and cost summary. The [power-bi/](power-bi) folder contains
+dashboard specs, DAX, data model notes, refresh steps, manual build
+instructions, and mockups. No `.pbix` is included yet; I did not create a
+placeholder dashboard file.
+
 ## Main Artifacts
 
 - [Data quality report](outputs/data_quality_report.md)
 - [Modeling and inventory report](outputs/model_report.md)
 - [Strategy deck](reports/strategy_deck.md)
-- [Beginner explainer](explainer-guide/explain-it-to-me.md)
 - [Companion notebook](notebooks/retail_demand_forecasting.ipynb)
+
+## Portfolio Use
+
+**CV bullets**
+
+- Built a retail demand forecasting and inventory policy project on 913K daily
+  store-item sales rows, comparing baseline and machine-learning forecasts.
+- Converted forecast error into safety stock, reorder-point, and operating-cost
+  recommendations using explicit inventory assumptions.
+- SQL-focused: Added DuckDB validation and KPI views for date-store-item grain,
+  demand aggregation, model metrics, forecast error, and inventory policy.
+- Power BI-focused: Prepared dashboard-ready tables and a three-page inventory
+  planning dashboard build spec.
+
+**LinkedIn description**
+
+> Retail Demand Forecasting & Inventory Optimization - I built this project to
+> connect forecasting accuracy to a business decision: how much safety stock
+> should a retailer carry by store and item?
+
+**Interview explanation**
+
+> "Forecast accuracy only matters if it changes a decision. I used Python for
+> forecasting and scenario logic, SQL for reproducible checks and KPI exports,
+> and Power BI for model performance, SKU difficulty, and reorder priorities."
+
+**Likely interview questions**
+
+1. *Why not optimize only for RMSE?* Inventory decisions care about the cost of
+   being wrong, so I translate errors into stockout and holding-cost tradeoffs.
+2. *What is missing from the data?* Prices, true demand, on-hand inventory,
+   promotions, supplier lead times, and pack sizes.
+3. *How would this work in production?* Add promotion and holiday features,
+   refresh forecasts on a schedule, and compare policies to actual outcomes.
 
 ## Limitations
 

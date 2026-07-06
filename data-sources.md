@@ -18,8 +18,14 @@ or as a live retailer's operating system.
 
 ## Access
 
-The raw data is intentionally ignored by git. To reproduce the project, place
-the Kaggle files under `data/raw/` or run:
+The raw files needed to review and run the project are included under
+`data/raw/`:
+
+- `train.csv`
+- `test.csv`
+- `sample_submission.csv`
+
+To refresh them from Kaggle, run:
 
 ```powershell
 python scripts/download_data.py
@@ -34,6 +40,10 @@ rules, it falls back to a Kaggle-hosted mirror with matching file names and file
 sizes:
 
 - Mirror used as fallback: https://www.kaggle.com/datasets/akshaymairal/store-item-demand-forecasting-challenge
+
+The metadata check for the mirror dataset on 2026-07-06 returned license
+`MIT`. The official competition remains the canonical source; the mirror is a
+practical fallback for reproducibility.
 
 ## External Benchmarks Used For Assumptions
 
