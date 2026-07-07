@@ -22,7 +22,7 @@ This repository uses Kaggle's Store Item Demand Forecasting Challenge dataset to
 | 4 | The model improves the inventory policy under stated assumptions. | Validation-period operating cost falls by about $7.5K versus the seasonal naive policy. |
 | 5 | The recommendation is selective inventory control. | High-volatility store-item pairs need dynamic safety stock; stable SKUs can run leaner. |
 
-![Forecast comparison](reports/figures/forecast_comparison.png)
+![Forecast comparison](https://raw.githubusercontent.com/shalom-wu/retail-demand-and-inventory-planning/main/reports/figures/forecast_comparison.png)
 
 ## Data
 
